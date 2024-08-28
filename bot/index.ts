@@ -17,10 +17,10 @@ const bot = createKaiaBotClient({
 bot.on("message", (event: MessageEvent) => {
   if (event.message.type == "text") {
     switch (event.message.text) {
-      case "Please tell me receipt.":
-        receipt(bot, event);
+      case "Payment statement":
+        paymentStatement(bot, event);
         break;
-      case "How much is my payment?":
+      case "Pay":
         payment(bot, event);
         break;
       default:
@@ -37,7 +37,27 @@ async function commandNotFound(bot: KaiaBotClient, event: MessageEvent) {
     const messages: Array<TextMessage> = [
       {
         type: "text",
-        text: "Please provide the specific request.",
+        text: "Hello. Let's start making payment",
+        quickReply: {
+          items: [
+            {
+              type: "action",
+              action: {
+                type: "message",
+                label: "Payment statement",
+                text: "Payment statement"
+              }
+            },
+            {
+              type: "action",
+              action: {
+                type: "message",
+                label: "Pay",
+                text: "Pay"
+              }
+            }
+          ]
+        }
       },
     ];
     await bot.sendMessage(to, messages);
@@ -46,19 +66,30 @@ async function commandNotFound(bot: KaiaBotClient, event: MessageEvent) {
   }
 }
 
-async function receipt(bot: KaiaBotClient, event: MessageEvent) {
+async function paymentStatement(bot: KaiaBotClient, event: MessageEvent) {
   try {
     const to = event.source.userId || "";
-    const content = `Carol Brithday Party
-【receipt】
-pizza x 2
-potato x 2
-total: 100KAIA
-payer: recipient`
+    const content = `🎉Carol Brithday Party🎉
+【Payment statement】
+Total: 100KAIA
+Number of people: 5
+Payer: shogo`
     const messages: Array<TextMessage> = [
       {
         type: "text",
         text: content,
+        quickReply: {
+          items: [
+            {
+              type: "action",
+              action: {
+                type: "message",
+                label: "Pay",
+                text: "Pay"
+              }
+            }
+          ]
+        }
       },
     ];
     await bot.sendMessage(to, messages);
@@ -70,8 +101,7 @@ payer: recipient`
 async function payment(bot: KaiaBotClient, event: MessageEvent) {
   try {
     const to = event.source.userId || "";
-    const textContent = `Your payment is 20KAIA to recipient. 
-Please push the button to pay recipient.`
+    const textContent = "You → shogo: 20KAIA"
     const messages: Array<TemplateMessage> = [
       {
         type: "template",
@@ -82,7 +112,7 @@ Please push the button to pay recipient.`
           actions: [
             {
               type: "uri",
-              label: "Go to pay",
+              label: "Proceed to Payment",
               uri: "https://ksl-splitting-bill-demo.vercel.app/?amount=20"
             }
           ]
