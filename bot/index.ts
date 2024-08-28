@@ -2,10 +2,8 @@
 
 import dotenv from "dotenv";
 dotenv.config();
-import { MessageEvent, TextMessage } from "@line/bot-sdk";
+import { MessageEvent, TextMessage, TemplateMessage } from "@line/bot-sdk";
 import { KaiaBotClient, createKaiaBotClient } from "./kaia_bot_client";
-import { getSdkError } from "@walletconnect/utils";
-import { Transaction } from "web3-types";
 
 const bot = createKaiaBotClient({
   sbUrl: process.env.SUPABASE_URL ?? "",
@@ -19,24 +17,27 @@ const bot = createKaiaBotClient({
 bot.on("message", (event: MessageEvent) => {
   if (event.message.type == "text") {
     switch (event.message.text) {
-      case "hogehoge":
-        fugafuga(bot, event);
+      case "Please tell me receipt.":
+        receipt(bot, event);
+        break;
+      case "How much is my payment?":
+        payment(bot, event);
         break;
       default:
-        say_hello(bot, event);
+        commandNotFound(bot, event);
     }
   }
 });
 
 bot.start();
 
-async function say_hello(bot: KaiaBotClient, event: MessageEvent) {
+async function commandNotFound(bot: KaiaBotClient, event: MessageEvent) {
   try {
     const to = event.source.userId || "";
     const messages: Array<TextMessage> = [
       {
         type: "text",
-        text: "Hello world",
+        text: "Please provide the specific request.",
       },
     ];
     await bot.sendMessage(to, messages);
@@ -45,13 +46,47 @@ async function say_hello(bot: KaiaBotClient, event: MessageEvent) {
   }
 }
 
-async function fugafuga(bot: KaiaBotClient, event: MessageEvent) {
+async function receipt(bot: KaiaBotClient, event: MessageEvent) {
   try {
     const to = event.source.userId || "";
+    const content = `Carol Brithday Party
+【receipt】
+pizza x 2
+potato x 2
+total: 100KAIA
+payer: recipient`
     const messages: Array<TextMessage> = [
       {
         type: "text",
-        text: "fugafuga",
+        text: content,
+      },
+    ];
+    await bot.sendMessage(to, messages);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+async function payment(bot: KaiaBotClient, event: MessageEvent) {
+  try {
+    const to = event.source.userId || "";
+    const textContent = `Your payment is 20KAIA to recipient. 
+Please push the button to pay recipient.`
+    const messages: Array<TemplateMessage> = [
+      {
+        type: "template",
+        altText: "This is a buttons template",
+        template: {
+          type: "buttons",
+          text: textContent,
+          actions: [
+            {
+              type: "uri",
+              label: "Go to pay",
+              uri: "https://ksl-splitting-bill-demo.vercel.app/?amount=20"
+            }
+          ]
+        }
       },
     ];
     await bot.sendMessage(to, messages);
