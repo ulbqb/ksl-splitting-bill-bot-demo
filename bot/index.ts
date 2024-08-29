@@ -116,7 +116,7 @@ async function receipt(bot: KaiaBotClient, event: MessageEvent) {
                       },
                       {
                         type: "text",
-                        text: "60KAIA",
+                        text: "150KAIA",
                         size: "sm",
                         color: "#111111",
                         align: "end"
@@ -136,7 +136,7 @@ async function receipt(bot: KaiaBotClient, event: MessageEvent) {
                       },
                       {
                         type: "text",
-                        text: "40KAIA",
+                        text: "50KAIA",
                         size: "sm",
                         color: "#111111",
                         align: "end"
@@ -159,7 +159,7 @@ async function receipt(bot: KaiaBotClient, event: MessageEvent) {
                       },
                       {
                         type: "text",
-                        text: "100KAIA",
+                        text: "200KAIA",
                         size: "sm",
                         color: "#111111",
                         align: "end"
@@ -237,7 +237,7 @@ async function receipt(bot: KaiaBotClient, event: MessageEvent) {
 async function payment(bot: KaiaBotClient, event: MessageEvent) {
   try {
     const to = event.source.userId || "";
-    const textContent = "You → Shogo: 20KAIA"
+    const textContent = "You → Shogo: 40KAIA"
     const messages: Array<TemplateMessage> = [
       {
         type: "template",
@@ -249,7 +249,7 @@ async function payment(bot: KaiaBotClient, event: MessageEvent) {
             {
               type: "uri",
               label: "Proceed to Payment",
-              uri: "https://ksl-splitting-bill-demo.vercel.app/?amount=20"
+              uri: "https://ksl-splitting-bill-demo.vercel.app/?amount=40"
             }
           ]
         }
