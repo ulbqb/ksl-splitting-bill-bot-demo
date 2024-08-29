@@ -2,10 +2,8 @@
 
 import dotenv from "dotenv";
 dotenv.config();
-import { MessageEvent, TextMessage } from "@line/bot-sdk";
+import { MessageEvent, TextMessage, TemplateMessage, messagingApi } from "@line/bot-sdk";
 import { KaiaBotClient, createKaiaBotClient } from "./kaia_bot_client";
-import { getSdkError } from "@walletconnect/utils";
-import { Transaction } from "web3-types";
 
 const bot = createKaiaBotClient({
   sbUrl: process.env.SUPABASE_URL ?? "",
@@ -19,24 +17,47 @@ const bot = createKaiaBotClient({
 bot.on("message", (event: MessageEvent) => {
   if (event.message.type == "text") {
     switch (event.message.text) {
-      case "hogehoge":
-        fugafuga(bot, event);
+      case "Receipt":
+        receipt(bot, event);
+        break;
+      case "Pay":
+        payment(bot, event);
         break;
       default:
-        say_hello(bot, event);
+        commandNotFound(bot, event);
     }
   }
 });
 
 bot.start();
 
-async function say_hello(bot: KaiaBotClient, event: MessageEvent) {
+async function commandNotFound(bot: KaiaBotClient, event: MessageEvent) {
   try {
     const to = event.source.userId || "";
     const messages: Array<TextMessage> = [
       {
         type: "text",
-        text: "Hello world",
+        text: "Hello. Let's start making payment",
+        quickReply: {
+          items: [
+            {
+              type: "action",
+              action: {
+                type: "message",
+                label: "Receipt",
+                text: "Receipt"
+              }
+            },
+            {
+              type: "action",
+              action: {
+                type: "message",
+                label: "Pay",
+                text: "Pay"
+              }
+            }
+          ]
+        }
       },
     ];
     await bot.sendMessage(to, messages);
@@ -45,13 +66,193 @@ async function say_hello(bot: KaiaBotClient, event: MessageEvent) {
   }
 }
 
-async function fugafuga(bot: KaiaBotClient, event: MessageEvent) {
+async function receipt(bot: KaiaBotClient, event: MessageEvent) {
   try {
     const to = event.source.userId || "";
-    const messages: Array<TextMessage> = [
+    const messages: Array<messagingApi.FlexMessage> = [
       {
-        type: "text",
-        text: "fugafuga",
+        type: "flex",
+        altText: "recept",
+        contents: {
+          type: "bubble",
+          body: {
+            type: "box",
+            layout: "vertical",
+            contents: [
+              {
+                type: "text",
+                text: "RECEIPT",
+                weight: "bold",
+                color: "#1DB446",
+                size: "sm"
+              },
+              {
+                type: "text",
+                text: "Carol's Birthday Party",
+                weight: "bold",
+                size: "xl",
+                margin: "md"
+              },
+              {
+                type: "separator",
+                margin: "xxl"
+              },
+              {
+                type: "box",
+                layout: "vertical",
+                margin: "xxl",
+                spacing: "sm",
+                contents: [
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "Pizza x 2",
+                        size: "sm",
+                        color: "#555555",
+                        flex: 0
+                      },
+                      {
+                        type: "text",
+                        text: "150KAIA",
+                        size: "sm",
+                        color: "#111111",
+                        align: "end"
+                      }
+                    ]
+                  },
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "Potato x 2",
+                        size: "sm",
+                        color: "#555555",
+                        flex: 0
+                      },
+                      {
+                        type: "text",
+                        text: "50KAIA",
+                        size: "sm",
+                        color: "#111111",
+                        align: "end"
+                      }
+                    ]
+                  },
+                  {
+                    type: "separator",
+                    margin: "xxl"
+                  },
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "TOTAL",
+                        size: "xs",
+                        color: "#555555"
+                      },
+                      {
+                        type: "text",
+                        text: "200KAIA",
+                        size: "sm",
+                        color: "#111111",
+                        align: "end"
+                      }
+                    ]
+                  },
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "NUMBER OF PEOPLE",
+                        size: "xs",
+                        color: "#555555"
+                      },
+                      {
+                        type: "text",
+                        text: "5",
+                        size: "sm",
+                        color: "#111111",
+                        align: "end"
+                      }
+                    ]
+                  },
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "PAYER",
+                        size: "xs",
+                        color: "#555555"
+                      },
+                      {
+                        type: "text",
+                        text: "Shogo",
+                        size: "sm",
+                        color: "#111111",
+                        align: "end"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          styles: {
+            footer: {
+              separator: true
+            }
+          }
+        },
+        quickReply: {
+          items: [
+            {
+              type: "action",
+              action: {
+                type: "message",
+                label: "Pay",
+                text: "Pay"
+              }
+            }
+          ]
+        }
+      },
+    ];
+    await bot.sendMessage(to, messages);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+async function payment(bot: KaiaBotClient, event: MessageEvent) {
+  try {
+    const to = event.source.userId || "";
+    const textContent = "You → Shogo: 40KAIA"
+    const messages: Array<TemplateMessage> = [
+      {
+        type: "template",
+        altText: "This is a buttons template",
+        template: {
+          type: "buttons",
+          text: textContent,
+          actions: [
+            {
+              type: "uri",
+              label: "Proceed to Payment",
+              uri: "https://ksl-splitting-bill-demo.vercel.app/?amount=40"
+            }
+          ]
+        }
       },
     ];
     await bot.sendMessage(to, messages);
