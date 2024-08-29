@@ -2,7 +2,7 @@
 
 import dotenv from "dotenv";
 dotenv.config();
-import { MessageEvent, TextMessage, TemplateMessage } from "@line/bot-sdk";
+import { MessageEvent, TextMessage, TemplateMessage, messagingApi } from "@line/bot-sdk";
 import { KaiaBotClient, createKaiaBotClient } from "./kaia_bot_client";
 
 const bot = createKaiaBotClient({
@@ -17,8 +17,8 @@ const bot = createKaiaBotClient({
 bot.on("message", (event: MessageEvent) => {
   if (event.message.type == "text") {
     switch (event.message.text) {
-      case "Payment statement":
-        paymentStatement(bot, event);
+      case "Receipt":
+        receipt(bot, event);
         break;
       case "Pay":
         payment(bot, event);
@@ -44,8 +44,8 @@ async function commandNotFound(bot: KaiaBotClient, event: MessageEvent) {
               type: "action",
               action: {
                 type: "message",
-                label: "Payment statement",
-                text: "Payment statement"
+                label: "Receipt",
+                text: "Receipt"
               }
             },
             {
@@ -66,18 +66,154 @@ async function commandNotFound(bot: KaiaBotClient, event: MessageEvent) {
   }
 }
 
-async function paymentStatement(bot: KaiaBotClient, event: MessageEvent) {
+async function receipt(bot: KaiaBotClient, event: MessageEvent) {
   try {
     const to = event.source.userId || "";
-    const content = `🎉Carol Brithday Party🎉
-【Payment statement】
-Total: 100KAIA
-Number of people: 5
-Payer: shogo`
-    const messages: Array<TextMessage> = [
+    const messages: Array<messagingApi.FlexMessage> = [
       {
-        type: "text",
-        text: content,
+        type: "flex",
+        altText: "recept",
+        contents: {
+          type: "bubble",
+          body: {
+            type: "box",
+            layout: "vertical",
+            contents: [
+              {
+                type: "text",
+                text: "RECEIPT",
+                weight: "bold",
+                color: "#1DB446",
+                size: "sm"
+              },
+              {
+                type: "text",
+                text: "Carol's Birthday Party",
+                weight: "bold",
+                size: "xl",
+                margin: "md"
+              },
+              {
+                type: "separator",
+                margin: "xxl"
+              },
+              {
+                type: "box",
+                layout: "vertical",
+                margin: "xxl",
+                spacing: "sm",
+                contents: [
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "Pizza x 2",
+                        size: "sm",
+                        color: "#555555",
+                        flex: 0
+                      },
+                      {
+                        type: "text",
+                        text: "60KAIA",
+                        size: "sm",
+                        color: "#111111",
+                        align: "end"
+                      }
+                    ]
+                  },
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "Potato x 2",
+                        size: "sm",
+                        color: "#555555",
+                        flex: 0
+                      },
+                      {
+                        type: "text",
+                        text: "40KAIA",
+                        size: "sm",
+                        color: "#111111",
+                        align: "end"
+                      }
+                    ]
+                  },
+                  {
+                    type: "separator",
+                    margin: "xxl"
+                  },
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "TOTAL",
+                        size: "xs",
+                        color: "#555555"
+                      },
+                      {
+                        type: "text",
+                        text: "100KAIA",
+                        size: "sm",
+                        color: "#111111",
+                        align: "end"
+                      }
+                    ]
+                  },
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "NUMBER OF PEOPLE",
+                        size: "xs",
+                        color: "#555555"
+                      },
+                      {
+                        type: "text",
+                        text: "5",
+                        size: "sm",
+                        color: "#111111",
+                        align: "end"
+                      }
+                    ]
+                  },
+                  {
+                    type: "box",
+                    layout: "horizontal",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "PAYER",
+                        size: "xs",
+                        color: "#555555"
+                      },
+                      {
+                        type: "text",
+                        text: "Shogo",
+                        size: "sm",
+                        color: "#111111",
+                        align: "end"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          styles: {
+            footer: {
+              separator: true
+            }
+          }
+        },
         quickReply: {
           items: [
             {
@@ -101,7 +237,7 @@ Payer: shogo`
 async function payment(bot: KaiaBotClient, event: MessageEvent) {
   try {
     const to = event.source.userId || "";
-    const textContent = "You → shogo: 20KAIA"
+    const textContent = "You → Shogo: 20KAIA"
     const messages: Array<TemplateMessage> = [
       {
         type: "template",
